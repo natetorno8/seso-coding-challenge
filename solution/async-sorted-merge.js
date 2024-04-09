@@ -3,10 +3,11 @@
 const { binaryInsertion } = require("./helper");
 
 
-const printEarliestLog = (logSources, printer) => {
+const printEarliestLog = (logSources, printer, resolveFunc, rejectFunc) => {
   try {
     if (!logSources.length) {
       // process completed
+      resolveFunc();
       return;
     }
     // console.log('logSources', logSources)
@@ -19,11 +20,14 @@ const printEarliestLog = (logSources, printer) => {
         if (!currentLogSource.drained) {
           binaryInsertion(logSources, currentLogSource)
         }
-        printEarliestLog(logSources, printer)
+        printEarliestLog(logSources, printer, resolveFunc, rejectFunc)
       })
+    } else {
+      resolveFunc();
     }
   } catch (error) {
-    return error
+    console.log("error", error)
+    rejectFunc();
   }
 }
 
@@ -32,11 +36,6 @@ module.exports = (logSources, printer) => {
   // initial sort to get values lined up
   logSources.sort((a,b) => a.last.date - b.last.date)
   return new Promise((resolve, reject) => {
-    const error = printEarliestLog(logSources, printer);
-    if (!error) {
-      resolve(console.log("Async sort complete."));
-    } else {
-      reject(console.log("The print failed with error ", error));
-    }
+    printEarliestLog(logSources , printer, () => resolve(console.log("Async sort complete.")),  () => reject(console.log("The print failed with error ")));
   });
 };
