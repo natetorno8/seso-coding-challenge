@@ -10,9 +10,10 @@ const printEarliestLog = (logSources, printer, resolveFunc, rejectFunc) => {
       resolveFunc();
       return;
     }
-    // console.log('logSources', logSources)
+
     // shift off the most recent log source
     const currentLogSource = logSources.shift();
+    
     // first if might be unnessary, but added to make sure the first element wasn't already drained
     if (!currentLogSource.drained) {
       printer.print(currentLogSource.last)
